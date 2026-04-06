@@ -1,4 +1,5 @@
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star, Zap } from "lucide-react";
+import { motion } from "motion/react";
 import type { Product } from "../types";
 
 interface ProductCardProps {
@@ -27,17 +28,17 @@ function StarRating({ rating }: { rating: number }) {
           key={i}
           className="w-3.5 h-3.5"
           style={{
-            fill:
-              i <= Math.round(rating) ? "oklch(var(--star))" : "transparent",
-            color:
-              i <= Math.round(rating)
-                ? "oklch(var(--star))"
-                : "oklch(var(--border))",
+            fill: i <= Math.round(rating) ? "#f59e0b" : "transparent",
+            color: i <= Math.round(rating) ? "#f59e0b" : "rgba(168,85,247,0.4)",
           }}
         />
       ))}
     </div>
   );
+}
+
+function formatPrice(price: number): string {
+  return Number.isInteger(price) ? price.toString() : price.toFixed(2);
 }
 
 export default function ProductCard({
@@ -52,79 +53,116 @@ export default function ProductCard({
     : null;
 
   return (
-    <div className="bg-white rounded-xl shadow-card hover:shadow-card-hover transition-shadow duration-300 overflow-hidden group flex flex-col">
+    <motion.div
+      className="rounded-2xl overflow-hidden flex flex-col group cursor-pointer"
+      style={{
+        background:
+          "linear-gradient(145deg, rgba(26,10,61,0.9), rgba(13,13,43,0.95))",
+        border: "1px solid rgba(168,85,247,0.25)",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+      }}
+      whileHover={{
+        scale: 1.02,
+        boxShadow: "0 8px 40px rgba(168,85,247,0.4)",
+        borderColor: "rgba(168,85,247,0.7)",
+      }}
+      transition={{ duration: 0.2 }}
+    >
       {/* Image */}
-      <div className="relative overflow-hidden bg-muted h-48">
+      <div
+        className="relative overflow-hidden h-52"
+        style={{ background: "rgba(168,85,247,0.05)" }}
+      >
         <img
           src={product.image}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           loading="lazy"
         />
-        {product.badge && (
-          <span
-            className={`absolute top-3 left-3 text-xs font-bold px-2.5 py-1 rounded-full ${
-              product.badge === "Sale"
-                ? "bg-red-500 text-white"
-                : "bg-brand text-white"
-            }`}
+        {/* Overlay shimmer on hover */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(168,85,247,0.1), transparent)",
+          }}
+        />
+        {product.badge && discount && (
+          <motion.span
+            className="absolute top-3 left-3 text-xs font-black px-2.5 py-1 rounded-full text-white"
+            style={{ background: "linear-gradient(135deg, #ef4444, #f59e0b)" }}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
           >
-            {product.badge === "Sale" && discount
-              ? `-${discount}%`
-              : product.badge}
-          </span>
+            -{discount}% OFF
+          </motion.span>
         )}
+        {/* Glow indicator */}
+        <div
+          className="absolute top-3 right-3 w-2 h-2 rounded-full bg-green-400"
+          style={{ boxShadow: "0 0 8px #4ade80" }}
+        />
       </div>
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1">
-        <span className="text-xs text-muted-foreground mb-1">
+        <span className="text-xs font-medium text-purple-400 mb-1">
           {product.category}
         </span>
-        <h3 className="text-sm font-semibold text-foreground line-clamp-2 mb-2 leading-snug">
+        <h3 className="text-sm font-bold text-white line-clamp-2 mb-2 leading-snug">
           {product.name}
         </h3>
 
         {/* Rating */}
         <div className="flex items-center gap-2 mb-3">
           <StarRating rating={product.rating} />
-          <span className="text-xs text-muted-foreground">
-            ({product.reviews})
-          </span>
+          <span className="text-xs text-white/40">({product.reviews})</span>
         </div>
 
         {/* Price */}
         <div className="flex items-center gap-2 mb-4 mt-auto">
-          <span className="text-lg font-bold text-foreground">
-            ${product.price.toFixed(2)}
+          <span className="text-xl font-black text-yellow-400">
+            ৳{formatPrice(product.price)}
           </span>
           {product.originalPrice && (
-            <span className="text-sm text-muted-foreground line-through">
-              ${product.originalPrice.toFixed(2)}
+            <span className="text-sm text-white/40 line-through">
+              ৳{formatPrice(product.originalPrice)}
             </span>
           )}
         </div>
 
         {/* Buttons */}
         <div className="flex flex-col gap-2">
-          <button
+          <motion.button
             type="button"
             onClick={() => onAddToCart(product)}
-            className="flex items-center justify-center gap-2 bg-brand text-white text-sm font-semibold py-2 rounded-lg hover:bg-brand-dark transition-colors"
+            className="flex items-center justify-center gap-2 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #a855f7)" }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 20px rgba(168,85,247,0.6)",
+            }}
+            whileTap={{ scale: 0.97 }}
             data-ocid="product.primary_button"
           >
             <ShoppingCart className="w-4 h-4" /> Add to Cart
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
             onClick={() => onOrderWhatsApp(product)}
-            className="flex items-center justify-center gap-2 bg-whatsapp text-white text-sm font-semibold py-2 rounded-lg hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+            style={{ background: "linear-gradient(135deg, #16a34a, #22c55e)" }}
+            whileHover={{
+              scale: 1.02,
+              boxShadow: "0 0 20px rgba(34,197,94,0.5)",
+            }}
+            whileTap={{ scale: 0.97 }}
             data-ocid="product.secondary_button"
           >
             <WhatsAppIcon /> Order via WhatsApp
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

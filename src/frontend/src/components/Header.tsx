@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { Heart, Search, ShoppingCart, User } from "lucide-react";
+import { Search, ShoppingCart, Zap } from "lucide-react";
+import { motion } from "motion/react";
 
 interface HeaderProps {
   cartCount: number;
@@ -15,54 +16,62 @@ export default function Header({
   onCartOpen,
 }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-40 bg-white border-b border-border shadow-xs">
+    <header
+      className="sticky top-0 z-40 shadow-lg"
+      style={{
+        background: "rgba(13, 13, 43, 0.92)",
+        backdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(168, 85, 247, 0.25)",
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex items-center gap-1">
-              {/* Colorful dot row inspired by Uniqo BD logo */}
-              <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-              <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
-              <span className="w-2.5 h-2.5 rounded-full bg-blue-400" />
-              <span className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-              <span className="w-2.5 h-2.5 rounded-full bg-pink-500" />
-            </div>
-            <span className="text-xl font-bold text-brand hidden sm:block">
-              UNIQO <span className="text-foreground">BD</span>
+          <motion.div
+            className="flex items-center gap-2 flex-shrink-0"
+            whileHover={{ scale: 1.03 }}
+          >
+            <span className="text-2xl">🚀</span>
+            <span className="text-xl font-black text-white">
+              UNIQO <span className="text-yellow-400">BD</span>
             </span>
-          </div>
+          </motion.div>
 
           {/* Nav links (desktop) */}
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
             {[
+              "Home",
               "New Arrivals",
-              "Categories",
               "Best Sellers",
-              "Offers",
+              "Hot Deals",
               "Contact",
             ].map((link) => (
-              <button
+              <motion.button
                 key={link}
                 type="button"
-                className="text-muted-foreground hover:text-brand transition-colors"
+                className="text-white/60 hover:text-yellow-400 transition-colors font-medium"
+                whileHover={{ y: -1 }}
                 data-ocid="nav.link"
               >
                 {link}
-              </button>
+              </motion.button>
             ))}
           </nav>
 
           {/* Search */}
           <div className="flex-1 max-w-xs hidden md:block">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400" />
               <input
                 type="text"
-                placeholder="Search products…"
+                placeholder="Search toys & gadgets..."
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg bg-muted/40 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-colors"
+                className="w-full pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 rounded-xl focus:outline-none focus:ring-2 transition-colors"
+                style={{
+                  background: "rgba(168, 85, 247, 0.1)",
+                  border: "1px solid rgba(168, 85, 247, 0.3)",
+                }}
                 data-ocid="header.search_input"
               />
             </div>
@@ -70,24 +79,19 @@ export default function Header({
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="hidden sm:flex p-2 rounded-lg text-muted-foreground hover:text-brand hover:bg-muted transition-colors"
-              aria-label="Account"
-            >
-              <User className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              className="hidden sm:flex p-2 rounded-lg text-muted-foreground hover:text-brand hover:bg-muted transition-colors"
-              aria-label="Favorites"
-            >
-              <Heart className="w-5 h-5" />
-            </button>
-            <button
+            <motion.button
               type="button"
               onClick={onCartOpen}
-              className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors relative"
+              className="flex items-center gap-2 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all relative"
+              style={{
+                background: "linear-gradient(135deg, #7c3aed, #a855f7)",
+                boxShadow: "0 0 15px rgba(168,85,247,0.4)",
+              }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 0 25px rgba(168,85,247,0.7)",
+              }}
+              whileTap={{ scale: 0.95 }}
               data-ocid="cart.open_modal_button"
             >
               <ShoppingCart className="w-4 h-4" />
@@ -95,25 +99,29 @@ export default function Header({
               {cartCount > 0 && (
                 <Badge
                   variant="secondary"
-                  className="absolute -top-2 -right-2 min-w-[1.25rem] h-5 flex items-center justify-center text-xs bg-yellow-400 text-brand px-1"
+                  className="absolute -top-2 -right-2 min-w-[1.25rem] h-5 flex items-center justify-center text-xs bg-yellow-400 text-black font-black px-1"
                 >
                   {cartCount}
                 </Badge>
               )}
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Mobile search */}
         <div className="md:hidden pb-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-purple-400" />
             <input
               type="text"
-              placeholder="Search products…"
+              placeholder="Search toys & gadgets..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg bg-muted/40 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-colors"
+              className="w-full pl-9 pr-3 py-2 text-sm text-white placeholder:text-white/30 rounded-xl focus:outline-none transition-colors"
+              style={{
+                background: "rgba(168, 85, 247, 0.1)",
+                border: "1px solid rgba(168, 85, 247, 0.3)",
+              }}
               data-ocid="header.search_input"
             />
           </div>

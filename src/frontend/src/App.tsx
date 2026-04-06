@@ -8,7 +8,6 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ProductCard from "./components/ProductCard";
-import Sidebar from "./components/Sidebar";
 import type { CartItem, Product } from "./types";
 
 const PRODUCTS_PER_PAGE = 6;
@@ -17,16 +16,16 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
-  const [sortOrder, setSortOrder] = useState("default");
   const [currentPage, setCurrentPage] = useState(1);
   const [cartOpen, setCartOpen] = useState(false);
 
   useEffect(() => {
     fetch("/products.json")
       .then((r) => r.json())
-      .then((data: Product[]) => setProducts(data))
+      .then((data: { results?: Product[] } | Product[]) => {
+        if (Array.isArray(data)) setProducts(data);
+        else if (data.results) setProducts(data.results);
+      })
       .catch(() => toast.error("Failed to load products"));
   }, []);
 
@@ -40,17 +39,8 @@ export default function App() {
           p.category.toLowerCase().includes(q),
       );
     }
-    if (selectedCategories.length > 0) {
-      list = list.filter((p) => selectedCategories.includes(p.category));
-    }
-    list = list.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1],
-    );
-    if (sortOrder === "price-asc") list.sort((a, b) => a.price - b.price);
-    else if (sortOrder === "price-desc") list.sort((a, b) => b.price - a.price);
-    else if (sortOrder === "rating") list.sort((a, b) => b.rating - a.rating);
     return list;
-  }, [products, searchQuery, selectedCategories, priceRange, sortOrder]);
+  }, [products, searchQuery]);
 
   const totalPages = Math.max(
     1,
@@ -90,16 +80,9 @@ export default function App() {
 
   const handleOrderViaWhatsApp = (product: Product) => {
     const text = encodeURIComponent(
-      `Hello UNIQO BD! I'd like to order:\n\n• ${product.name} x1 - ৳${product.price.toFixed(2)}\n\nTotal: ৳${product.price.toFixed(2)}\n\nPlease confirm my order. Thank you!`,
+      `Hello UNIQO BD! I'd like to order:\n\n\u2022 ${product.name} x1 - \u09F3${product.price.toFixed(2)}\n\nTotal: \u09F3${product.price.toFixed(2)}\n\nPlease confirm my order. Thank you!`,
     );
     window.open(`https://wa.me/8801601059999?text=${text}`, "_blank");
-  };
-
-  const handleCategoryChange = (cat: string, checked: boolean) => {
-    setSelectedCategories((prev) =>
-      checked ? [...prev, cat] : prev.filter((c) => c !== cat),
-    );
-    setCurrentPage(1);
   };
 
   const cartTotal = cartItems.reduce(
@@ -108,13 +91,11 @@ export default function App() {
   );
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
-  const categories = useMemo(
-    () => [...new Set(products.map((p) => p.category))],
-    [products],
-  );
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ background: "oklch(0.07 0.02 280)" }}
+    >
       <Toaster position="top-right" />
       <AnnouncementBar />
       <Header
@@ -128,129 +109,127 @@ export default function App() {
       />
       <Hero />
 
-      <main className="flex-1" id="catalog">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <div className="flex gap-8">
-            {/* Sidebar */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
-              <Sidebar
-                categories={categories}
-                selectedCategories={selectedCategories}
-                onCategoryChange={handleCategoryChange}
-                priceRange={priceRange}
-                onPriceRangeChange={(range) => {
-                  setPriceRange(range);
-                  setCurrentPage(1);
-                }}
-                sortOrder={sortOrder}
-                onSortChange={(s) => {
-                  setSortOrder(s);
-                  setCurrentPage(1);
-                }}
-              />
-            </aside>
-
-            {/* Product grid */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-6">
-                <p className="text-sm text-muted-foreground">
-                  Showing{" "}
-                  <span className="font-semibold text-foreground">
-                    {filtered.length}
-                  </span>{" "}
-                  products
-                </p>
-                {/* Mobile sort */}
-                <select
-                  className="lg:hidden border border-border rounded-md text-sm px-3 py-1.5 bg-background"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  data-ocid="sort.select"
-                >
-                  <option value="default">Sort: Default</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Top Rated</option>
-                </select>
-              </div>
-
-              {paginated.length === 0 ? (
-                <div
-                  className="text-center py-20 text-muted-foreground"
-                  data-ocid="products.empty_state"
-                >
-                  <p className="text-lg font-medium">No products found</p>
-                  <p className="text-sm mt-1">Try adjusting your filters</p>
-                </div>
-              ) : (
-                <motion.div
-                  className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"
-                  data-ocid="products.list"
-                >
-                  <AnimatePresence mode="popLayout">
-                    {paginated.map((product, idx) => (
-                      <motion.div
-                        key={product.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.96 }}
-                        transition={{ delay: idx * 0.05, duration: 0.3 }}
-                        data-ocid={`products.item.${idx + 1}`}
-                      >
-                        <ProductCard
-                          product={product}
-                          onAddToCart={handleAddToCart}
-                          onOrderWhatsApp={handleOrderViaWhatsApp}
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-10">
-                  <button
-                    type="button"
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    data-ocid="products.pagination_prev"
-                  >
-                    Previous
-                  </button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (p) => (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => setCurrentPage(p)}
-                        className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
-                          p === currentPage
-                            ? "bg-brand text-white"
-                            : "border border-border hover:bg-muted"
-                        }`}
-                      >
-                        {p}
-                      </button>
-                    ),
-                  )}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-lg border border-border text-sm font-medium hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                    data-ocid="products.pagination_next"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
+      <main
+        className="flex-1"
+        id="catalog"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(109,40,217,0.18) 0%, transparent 70%), oklch(0.09 0.025 280)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Section header */}
+          <motion.div
+            className="text-center mb-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div
+              className="inline-flex items-center gap-2 mb-3 px-4 py-1.5 rounded-full text-sm font-medium text-purple-300"
+              style={{
+                border: "1px solid rgba(168,85,247,0.3)",
+                background: "rgba(168,85,247,0.08)",
+              }}
+            >
+              ✨ Premium Collection
             </div>
-          </div>
+            <h2 className="text-3xl font-black text-white mb-2">
+              Our <span className="text-yellow-400">Hot</span> Products
+            </h2>
+            <p className="text-white/50 text-sm">
+              Showing{" "}
+              <span className="text-yellow-400 font-semibold">
+                {filtered.length}
+              </span>{" "}
+              amazing products
+            </p>
+          </motion.div>
+
+          {paginated.length === 0 ? (
+            <div
+              className="text-center py-20 text-white/40"
+              data-ocid="products.empty_state"
+            >
+              <p className="text-4xl mb-4">🔍</p>
+              <p className="text-lg font-medium text-white/60">
+                No products found
+              </p>
+              <p className="text-sm mt-1">Try adjusting your search</p>
+            </div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
+              data-ocid="products.list"
+            >
+              <AnimatePresence mode="popLayout">
+                {paginated.map((product, idx) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{ delay: idx * 0.08, duration: 0.4 }}
+                    data-ocid={`products.item.${idx + 1}`}
+                  >
+                    <ProductCard
+                      product={product}
+                      onAddToCart={handleAddToCart}
+                      onOrderWhatsApp={handleOrderViaWhatsApp}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-10">
+              <button
+                type="button"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                style={{ border: "1px solid rgba(168,85,247,0.3)" }}
+                data-ocid="products.pagination_prev"
+              >
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setCurrentPage(p)}
+                  className={`w-9 h-9 rounded-xl text-sm font-bold transition-all ${
+                    p === currentPage
+                      ? "text-white"
+                      : "text-white/50 hover:text-white"
+                  }`}
+                  style={{
+                    background:
+                      p === currentPage
+                        ? "linear-gradient(135deg, #7c3aed, #a855f7)"
+                        : "rgba(168,85,247,0.1)",
+                    border: "1px solid rgba(168,85,247,0.3)",
+                  }}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-white/60 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                style={{ border: "1px solid rgba(168,85,247,0.3)" }}
+                data-ocid="products.pagination_next"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </main>
 

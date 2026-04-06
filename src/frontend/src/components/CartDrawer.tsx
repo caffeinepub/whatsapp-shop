@@ -52,7 +52,7 @@ export default function CartDrawer({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -62,7 +62,11 @@ export default function CartDrawer({
 
           {/* Drawer */}
           <motion.div
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white z-50 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md z-50 flex flex-col shadow-2xl"
+            style={{
+              background: "oklch(0.1 0.03 280)",
+              borderLeft: "1px solid rgba(168,85,247,0.25)",
+            }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -70,8 +74,14 @@ export default function CartDrawer({
             data-ocid="cart.dialog"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-brand text-white">
-              <h2 className="text-lg font-bold flex items-center gap-2">
+            <div
+              className="flex items-center justify-between px-5 py-4"
+              style={{
+                background: "linear-gradient(135deg, #4c1d95, #7c3aed)",
+                borderBottom: "1px solid rgba(168,85,247,0.3)",
+              }}
+            >
+              <h2 className="text-lg font-bold flex items-center gap-2 text-white">
                 <ShoppingBag className="w-5 h-5" /> Your Cart
                 {items.length > 0 && (
                   <span className="text-sm font-normal text-white/70">
@@ -82,7 +92,7 @@ export default function CartDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
                 data-ocid="cart.close_button"
               >
                 <X className="w-5 h-5" />
@@ -93,18 +103,28 @@ export default function CartDrawer({
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               {items.length === 0 ? (
                 <div
-                  className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-16"
+                  className="flex flex-col items-center justify-center h-full text-center py-16"
+                  style={{ color: "rgba(255,255,255,0.4)" }}
                   data-ocid="cart.empty_state"
                 >
                   <ShoppingBag className="w-16 h-16 mb-4 opacity-30" />
-                  <p className="text-lg font-medium">Your cart is empty</p>
-                  <p className="text-sm mt-1">Add some items!</p>
+                  <p
+                    className="text-lg font-medium"
+                    style={{ color: "rgba(255,255,255,0.6)" }}
+                  >
+                    Your cart is empty
+                  </p>
+                  <p className="text-sm mt-1">Add some items to get started!</p>
                 </div>
               ) : (
                 items.map((item, idx) => (
                   <div
                     key={item.product.id}
-                    className="flex gap-3 bg-muted/30 rounded-xl p-3"
+                    className="flex gap-3 rounded-xl p-3"
+                    style={{
+                      background: "rgba(168,85,247,0.08)",
+                      border: "1px solid rgba(168,85,247,0.2)",
+                    }}
                     data-ocid={`cart.item.${idx + 1}`}
                   >
                     <img
@@ -113,10 +133,13 @@ export default function CartDrawer({
                       className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">
+                      <p className="text-sm font-semibold text-white line-clamp-2 leading-snug">
                         {item.product.name}
                       </p>
-                      <p className="text-sm text-brand font-bold mt-1">
+                      <p
+                        className="text-sm font-bold mt-1"
+                        style={{ color: "#a855f7" }}
+                      >
                         ৳{item.product.price.toFixed(2)}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
@@ -125,12 +148,17 @@ export default function CartDrawer({
                           onClick={() =>
                             onUpdateQuantity(item.product.id, item.quantity - 1)
                           }
-                          className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                          style={{
+                            border: "1px solid rgba(168,85,247,0.4)",
+                            color: "rgba(255,255,255,0.7)",
+                            background: "rgba(168,85,247,0.1)",
+                          }}
                           data-ocid="cart.secondary_button"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="text-sm font-semibold w-6 text-center">
+                        <span className="text-sm font-semibold w-6 text-center text-white">
                           {item.quantity}
                         </span>
                         <button
@@ -138,7 +166,12 @@ export default function CartDrawer({
                           onClick={() =>
                             onUpdateQuantity(item.product.id, item.quantity + 1)
                           }
-                          className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
+                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                          style={{
+                            border: "1px solid rgba(168,85,247,0.4)",
+                            color: "rgba(255,255,255,0.7)",
+                            background: "rgba(168,85,247,0.1)",
+                          }}
                           data-ocid="cart.primary_button"
                         >
                           <Plus className="w-3 h-3" />
@@ -149,12 +182,13 @@ export default function CartDrawer({
                       <button
                         type="button"
                         onClick={() => onRemove(item.product.id)}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        className="transition-colors"
+                        style={{ color: "rgba(255,255,255,0.4)" }}
                         data-ocid="cart.delete_button"
                       >
                         <X className="w-4 h-4" />
                       </button>
-                      <p className="text-sm font-bold text-foreground">
+                      <p className="text-sm font-bold text-yellow-400">
                         ৳{(item.product.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -165,24 +199,37 @@ export default function CartDrawer({
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="border-t border-border px-5 py-4 space-y-4">
+              <div
+                className="px-5 py-4 space-y-4"
+                style={{
+                  borderTop: "1px solid rgba(168,85,247,0.25)",
+                  background: "oklch(0.12 0.04 280)",
+                }}
+              >
                 <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground text-sm">
+                  <span
+                    className="text-sm"
+                    style={{ color: "rgba(255,255,255,0.6)" }}
+                  >
                     Subtotal
                   </span>
-                  <span className="text-xl font-bold text-foreground">
+                  <span className="text-xl font-bold text-yellow-400">
                     ৳{total.toFixed(2)}
                   </span>
                 </div>
                 {total < 500 && (
-                  <p className="text-xs text-muted-foreground">
+                  <p
+                    className="text-xs"
+                    style={{ color: "rgba(168,85,247,0.8)" }}
+                  >
                     Add ৳{(500 - total).toFixed(2)} more for free delivery!
                   </p>
                 )}
                 <button
                   type="button"
                   onClick={handleWhatsAppCheckout}
-                  className="w-full flex items-center justify-center gap-2 bg-whatsapp text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-base"
+                  className="w-full flex items-center justify-center gap-2 text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-base"
+                  style={{ background: "#25D366" }}
                   data-ocid="cart.confirm_button"
                 >
                   <WhatsAppIcon /> Checkout via WhatsApp
