@@ -61,7 +61,7 @@ export default function App() {
       }
       return [...prev, { product, quantity: 1 }];
     });
-    toast.success(`${product.name} added to cart!`);
+    toast.success(`${product.name} added to cart!`, { duration: 2000 });
   };
 
   const handleUpdateQuantity = (id: number, qty: number) => {
@@ -96,7 +96,7 @@ export default function App() {
       className="min-h-screen flex flex-col"
       style={{ background: "oklch(0.07 0.02 280)" }}
     >
-      <Toaster position="top-right" />
+      <Toaster position="bottom-center" />
       <AnnouncementBar />
       <Header
         cartCount={cartCount}

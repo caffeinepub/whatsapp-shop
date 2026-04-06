@@ -52,30 +52,37 @@ export default function CartDrawer({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            style={{ zIndex: 9998 }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
             onClick={onClose}
             data-ocid="cart.modal"
           />
 
           {/* Drawer */}
           <motion.div
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md z-50 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-md flex flex-col shadow-2xl"
             style={{
+              zIndex: 9999,
               background: "oklch(0.1 0.03 280)",
               borderLeft: "1px solid rgba(168,85,247,0.25)",
             }}
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            transition={{
+              type: "tween",
+              ease: [0.25, 0.46, 0.45, 0.94],
+              duration: 0.35,
+            }}
             data-ocid="cart.dialog"
           >
             {/* Header */}
             <div
-              className="flex items-center justify-between px-5 py-4"
+              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
               style={{
                 background: "linear-gradient(135deg, #4c1d95, #7c3aed)",
                 borderBottom: "1px solid rgba(168,85,247,0.3)",
@@ -92,10 +99,11 @@ export default function CartDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
+                className="p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-colors text-white cursor-pointer"
+                style={{ WebkitTapHighlightColor: "transparent" }}
                 data-ocid="cart.close_button"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 pointer-events-none" />
               </button>
             </div>
 
@@ -148,15 +156,16 @@ export default function CartDrawer({
                           onClick={() =>
                             onUpdateQuantity(item.product.id, item.quantity - 1)
                           }
-                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer"
                           style={{
                             border: "1px solid rgba(168,85,247,0.4)",
                             color: "rgba(255,255,255,0.7)",
                             background: "rgba(168,85,247,0.1)",
+                            WebkitTapHighlightColor: "transparent",
                           }}
                           data-ocid="cart.secondary_button"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Minus className="w-3 h-3 pointer-events-none" />
                         </button>
                         <span className="text-sm font-semibold w-6 text-center text-white">
                           {item.quantity}
@@ -166,15 +175,16 @@ export default function CartDrawer({
                           onClick={() =>
                             onUpdateQuantity(item.product.id, item.quantity + 1)
                           }
-                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors"
+                          className="w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer"
                           style={{
                             border: "1px solid rgba(168,85,247,0.4)",
                             color: "rgba(255,255,255,0.7)",
                             background: "rgba(168,85,247,0.1)",
+                            WebkitTapHighlightColor: "transparent",
                           }}
                           data-ocid="cart.primary_button"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3 h-3 pointer-events-none" />
                         </button>
                       </div>
                     </div>
@@ -182,11 +192,14 @@ export default function CartDrawer({
                       <button
                         type="button"
                         onClick={() => onRemove(item.product.id)}
-                        className="transition-colors"
-                        style={{ color: "rgba(255,255,255,0.4)" }}
+                        className="p-1 rounded transition-colors cursor-pointer"
+                        style={{
+                          color: "rgba(255,255,255,0.4)",
+                          WebkitTapHighlightColor: "transparent",
+                        }}
                         data-ocid="cart.delete_button"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-4 h-4 pointer-events-none" />
                       </button>
                       <p className="text-sm font-bold text-yellow-400">
                         ৳{(item.product.price * item.quantity).toFixed(2)}
@@ -200,7 +213,7 @@ export default function CartDrawer({
             {/* Footer */}
             {items.length > 0 && (
               <div
-                className="px-5 py-4 space-y-4"
+                className="px-5 py-4 space-y-4 flex-shrink-0"
                 style={{
                   borderTop: "1px solid rgba(168,85,247,0.25)",
                   background: "oklch(0.12 0.04 280)",
@@ -208,7 +221,7 @@ export default function CartDrawer({
               >
                 <div className="flex justify-between items-center">
                   <span
-                    className="text-sm"
+                    className="text-sm font-medium"
                     style={{ color: "rgba(255,255,255,0.6)" }}
                   >
                     Subtotal
@@ -228,8 +241,11 @@ export default function CartDrawer({
                 <button
                   type="button"
                   onClick={handleWhatsAppCheckout}
-                  className="w-full flex items-center justify-center gap-2 text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition-opacity text-base"
-                  style={{ background: "#25D366" }}
+                  className="w-full flex items-center justify-center gap-2 text-white font-bold py-3.5 rounded-xl hover:opacity-90 active:opacity-75 transition-opacity text-base cursor-pointer"
+                  style={{
+                    background: "#25D366",
+                    WebkitTapHighlightColor: "transparent",
+                  }}
                   data-ocid="cart.confirm_button"
                 >
                   <WhatsAppIcon /> Checkout via WhatsApp

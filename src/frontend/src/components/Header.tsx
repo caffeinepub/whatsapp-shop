@@ -1,5 +1,4 @@
-import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, Zap } from "lucide-react";
+import { Search, ShoppingCart } from "lucide-react";
 import { motion } from "motion/react";
 
 interface HeaderProps {
@@ -77,34 +76,30 @@ export default function Header({
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Cart Button */}
           <div className="flex items-center gap-2">
-            <motion.button
+            <button
               type="button"
               onClick={onCartOpen}
-              className="flex items-center gap-2 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all relative"
+              className="relative flex items-center gap-2 text-white font-bold px-4 py-2 rounded-xl text-sm transition-all cursor-pointer select-none"
               style={{
                 background: "linear-gradient(135deg, #7c3aed, #a855f7)",
                 boxShadow: "0 0 15px rgba(168,85,247,0.4)",
+                WebkitTapHighlightColor: "transparent",
               }}
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 0 25px rgba(168,85,247,0.7)",
-              }}
-              whileTap={{ scale: 0.95 }}
               data-ocid="cart.open_modal_button"
             >
-              <ShoppingCart className="w-4 h-4" />
-              <span className="hidden sm:inline">Cart</span>
+              <ShoppingCart className="w-4 h-4 pointer-events-none" />
+              <span className="hidden sm:inline pointer-events-none">Cart</span>
               {cartCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="absolute -top-2 -right-2 min-w-[1.25rem] h-5 flex items-center justify-center text-xs bg-yellow-400 text-black font-black px-1"
+                <span
+                  className="absolute -top-2 -right-2 min-w-[1.25rem] h-5 flex items-center justify-center text-xs bg-yellow-400 text-black font-black px-1 rounded-full pointer-events-none"
+                  style={{ lineHeight: 1 }}
                 >
                   {cartCount}
-                </Badge>
+                </span>
               )}
-            </motion.button>
+            </button>
           </div>
         </div>
 
